@@ -1,0 +1,51 @@
+import sqlite3
+import random
+import uuid
+from pathlib import Path
+from datetime import datetime, timedelta
+
+def initialize_database(db_path):
+    if not db_path.exists():
+        with sqlite3.connect(db_path) as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS transactions (
+                    transaction_id TEXT PRIMARY KEY,
+                    timestamp TEXT NOT NULL,
+                    user_id TEXT NOT NULL,
+                    amount REAL,
+                    category TEXT NOT NULL,
+                    status TEXT NOT NULL
+                )
+            ''')
+
+def stream_transaction_data(record_count):
+    categories = ['electronics', 'apparel', 'home', 'travel', 'software']
+    transaction_time = datetime.now()
+    for i in range(0, record_count):
+        transaction_id = f'tx_{uuid.uuid4().hex[:8]}'
+        transaction_time += timedelta(minutes=(random.randint(0,10)))
+        transaction_user = f'u_{uuid.uuid4().hex[:6]}'
+        transaction_amount = round(random.uniform(5.00, 1500.00),2)
+        transaction_category = random.choice(categories)
+        transaction_status = 'FLAGGED' if transaction_amount > 1000.00 else 'APPROVED' if random.uniform(0, 100) < 95 else 'REJECTED'
+        yield (
+            transaction_id,
+            transaction_time.isoformat(),
+            transaction_user,
+            transaction_amount,
+            transaction_category,
+            transaction_status
+        )
+
+def inject_transaction_data(db_path=Path(__file__).resolve().parent / 'ledger.db', record_count=10000):
+    initialize_database(db_path)
+    with sqlite3.connect(db_path) as conn:
+        cursor = conn.cursor()
+        cursor.executemany('''
+            INSERT INTO transactions (transaction_id, timestamp, user_id, amount, category, status)
+            VALUES(?, ?, ?, ?, ?, ?)
+        ''', stream_transaction_data(record_count))
+
+if __name__ == '__main__':
+    inject_transaction_data()
