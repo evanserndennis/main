@@ -33,7 +33,7 @@ if target_files.exists():
                 except ValueError:
                     system_metrics['skipped_records'] += 1
 
-def breakdownCompiler(dictionary):
+def breakdown_compiler(dictionary):
     breakdown_compilation = ''
     for status in dictionary:
         breakdown_compilation += f'└─ {status}: {dictionary[status]} records\n\t'
@@ -49,7 +49,7 @@ print(
     Gross records processed: {system_metrics['records_processed']} records
     
     Record breakdown:
-        {breakdownCompiler(system_metrics['status_counts'])}
+        {breakdown_compiler(system_metrics['status_counts'])}
     
     Malformed rows skipped: {system_metrics['skipped_records']} records
     
