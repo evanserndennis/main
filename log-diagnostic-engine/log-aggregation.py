@@ -33,18 +33,23 @@ if target_files.exists():
                 except ValueError:
                     system_metrics['skipped_records'] += 1
 
+def breakdownCompiler(dictionary):
+    breakdown_compilation = ''
+    for status in dictionary:
+        breakdown_compilation += f'└─ {status}: {dictionary[status]} records\n\t'
+    return breakdown_compilation
+
+
 print(
     f'''
     ========================= SYSTEM METRICS REPORT =========================
     
     Total files processed: {system_metrics['files_processed']} files
 
-    Total records processed: {system_metrics['records_processed']} records
+    Gross records processed: {system_metrics['records_processed']} records
     
     Record breakdown:
-        └─ SUCCESS: {system_metrics['status_counts']['SUCCESS']} records
-        └─ PENDING: {system_metrics['status_counts']['PENDING']} records
-        └─ FAILED: {system_metrics['status_counts']['FAILED']} records
+        {breakdownCompiler(system_metrics['status_counts'])}
     
     Malformed rows skipped: {system_metrics['skipped_records']} records
     
