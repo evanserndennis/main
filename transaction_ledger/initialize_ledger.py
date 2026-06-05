@@ -3,21 +3,20 @@ import random
 import uuid
 from pathlib import Path
 from datetime import datetime, timedelta
+from db_manager import get_db_connection
 
-def initialize_database(db_path):
-    if not db_path.exists():
-        with sqlite3.connect(db_path) as conn:
-            cursor = conn.cursor()
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS transactions (
-                    transaction_id TEXT PRIMARY KEY,
-                    timestamp TEXT NOT NULL,
-                    user_id TEXT NOT NULL,
-                    amount REAL,
-                    category TEXT NOT NULL,
-                    status TEXT NOT NULL
-                )
-            ''')
+def initialize_database(conn):
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS transactions (
+            transaction_id TEXT PRIMARY KEY,
+            timestamp TEXT NOT NULL,
+            user_id TEXT NOT NULL,
+            amount REAL,
+            category TEXT NOT NULL,
+            status TEXT NOT NULL
+        )
+    ''')
 
 def stream_transaction_data(record_count):
     categories = ['electronics', 'apparel', 'home', 'travel', 'software']
@@ -38,10 +37,11 @@ def stream_transaction_data(record_count):
             transaction_status
         )
 
-def inject_transaction_data(db_path=Path(__file__).resolve().parent / 'ledger.db', record_count=10000):
+def inject_transaction_data(record_count=10000):
     #  Injecting test data into the database
-    initialize_database(db_path)
-    with sqlite3.connect(db_path) as conn:
+    conn = get_db_connection()
+    with conn:
+        initialize_database(conn)
         cursor = conn.cursor()
         cursor.executemany('''
             INSERT INTO transactions (transaction_id, timestamp, user_id, amount, category, status)
@@ -60,11 +60,13 @@ def inject_transaction_data(db_path=Path(__file__).resolve().parent / 'ledger.db
             ORDER BY total_volume DESC;   
         ''').fetchall()
 
-        #  Generating an injection summary to print in the terminal
-        injection_aggregation = ''
-        for status_summary in injection_summary:
-            injection_aggregation += f'{status_summary[0]} transactions:\n\t└─ Count: {status_summary[1]}\n\t└─ Total amount: {status_summary[2]}\n\t└─ Average amount: {status_summary[3]}\n'
-        print(injection_aggregation)
+    conn.close()
+
+    #  Generating an injection summary to print in the terminal
+    injection_aggregation = ''
+    for status_summary in injection_summary:
+        injection_aggregation += f'{status_summary[0]} transactions:\n\t└─ Count: {status_summary[1]}\n\t└─ Total amount: {status_summary[2]}\n\t└─ Average amount: {status_summary[3]}\n'
+    print(injection_aggregation)
 
 if __name__ == '__main__':
     inject_transaction_data()
