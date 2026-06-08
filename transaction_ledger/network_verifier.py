@@ -27,7 +27,7 @@ async def main():
         results = await asyncio.gather(*tasks)
         print('\n========================= VERIFICATION REPORT =========================\n')
         for record in results:
-            print(f"Center: {record['ledger']:12} | Response: {record['status_code']}")
+            print(f"Center: {record['ledger']:21} | Response: {record['status_code']}")
         
     end_time = time.perf_counter()
     print('\n============================ END OF  REPORT ============================\n')
