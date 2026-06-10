@@ -58,7 +58,7 @@ async def main():
     print(f'Failed network validation: {len(failures)}')
     print(f'\n{"=" * 66}')
     elapsed = time.perf_counter() - start_time
-    logging.info(f"Sweep complete in {elapsed:.2f}s. Metrics -> Operational: {successes} | Offline: {failures}\n")
+    logging.info(f"Sweep complete in {elapsed:.2f}s. Metrics -> Operational: {len(successes)} | Offline: {len(failures)}\n")
 
 if __name__ == '__main__':
     asyncio.run(main())

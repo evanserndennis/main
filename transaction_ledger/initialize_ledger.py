@@ -37,7 +37,7 @@ def stream_transaction_data(record_count):
             transaction_status
         )
 
-def inject_transaction_data(record_count=10000):
+def inject_transaction_data(record_count=500):
     #  Injecting test data into the database
     conn = get_db_connection()
     with conn:
