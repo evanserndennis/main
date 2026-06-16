@@ -1,6 +1,7 @@
 import sqlite3
 from db_manager import get_db_connection
 from dotenv import load_dotenv
+import google.generativeai as genai
 
 def fetch_flagged_transactions():
     try:
